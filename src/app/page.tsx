@@ -1,8 +1,9 @@
+import { Button } from "@/components/ui/button";
+
 export default function Home() {
   return (
-    <main style={{ padding: 24 }}>
-      <h1>KlippKlar Next ✅</h1>
-      <p>Hot reload funkar.</p>
+    <main className="p-6 border cursor-pointer">
+      <Button>Test</Button>
     </main>
   );
 }
