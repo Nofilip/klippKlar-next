@@ -1,10 +1,18 @@
 import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default function DashboardPage() {
   return (
-    <PageContainer>
-      <h1 className="text-2xl font-semibold">KlippKlar</h1>
-      <p className="opacity-80">Next-projektet är igång.</p>
+    <PageContainer className="space-y-6">
+      <PageHeader
+        title="Bokningar"
+        description="Hantera alla bokningar för salongen."
+        showBackButton
+        stickyMobileCTA
+      >
+        <Button>Ny bokning</Button>
+      </PageHeader>
     </PageContainer>
   );
 }

@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import Link from "next/link";
+import { usePathname } from 'next/navigation';
 
 interface PageHeaderProps {
   title: string;
@@ -17,11 +18,12 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, description, children, className, stickyMobileCTA = false, showBackButton = false }: PageHeaderProps) {
- 
 
-  
+  const pathname = usePathname();
+
+
   // Don't show back button on dashboard
-  const isDashboard = location.pathname === '/dashboard' || location.pathname === '/';
+  const isDashboard = pathname === "/dashboard" || pathname === "/";
   const shouldShowBack = showBackButton && !isDashboard;
 
   return (
