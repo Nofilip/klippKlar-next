@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AlertCircle, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '../../../../client-2/src/components/ui/button';
+import { Button } from '@/components/ui/button'; 
 import { cn } from '@/lib/utils';
 
 interface ErrorStateProps {
