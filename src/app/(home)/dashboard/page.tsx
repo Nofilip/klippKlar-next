@@ -58,6 +58,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
+
+
       {/* Today's bookings */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
