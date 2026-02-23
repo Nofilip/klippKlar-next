@@ -23,7 +23,7 @@ const mockBookings: Booking[] = [];
 
 const quickLinks = [
   { name: "Bokningar", href: "/bookings", icon: Calendar, color: "bg-accent" },
-  { name: "Tjänster", href: "/services", icon: Scissors, color: "bg-secondary" },
+  { name: "Tjänster", href: "/tjanster", icon: Scissors, color: "bg-secondary" },
   { name: "Frisörer", href: "/staff", icon: Users, color: "bg-accent" },
   { name: "Arbetstider", href: "/working-hours", icon: Clock, color: "bg-secondary" },
 ];

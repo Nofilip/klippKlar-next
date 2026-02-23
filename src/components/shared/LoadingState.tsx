@@ -65,7 +65,7 @@ export function LoadingState({ rows = 3, variant = 'card', className }: LoadingS
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between mt-3 pl-[52px] sm:pl-[60px]">
+            <div className="flex items-center justify-between mt-3 pl-13 sm:pl-15">
               <Skeleton className="h-4 w-28" />
               <Skeleton className="h-8 w-20 rounded-md" />
             </div>
@@ -91,7 +91,7 @@ export function LoadingState({ rows = 3, variant = 'card', className }: LoadingS
           {/* Week days skeleton */}
           <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
             {Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} className="flex flex-col items-center p-2 sm:p-3 min-h-[72px] sm:min-h-[80px]">
+              <div key={i} className="flex flex-col items-center p-2 sm:p-3 min-h-18 sm:min-h-20">
                 <Skeleton className="h-3 w-4 mb-1" />
                 <Skeleton className="h-5 w-5 rounded" />
               </div>

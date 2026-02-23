@@ -23,7 +23,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Bokningar", href: "/bookings", icon: Calendar },
-  { name: "Tjänster", href: "/services", icon: Scissors },
+  { name: "Tjänster", href: "/tjanster", icon: Scissors },
   { name: "Personal", href: "/staff", icon: Users },
   { name: "Arbetstider", href: "/working-hours", icon: Clock },
   { name: "Frånvaro", href: "/blocks", icon: Ban },
