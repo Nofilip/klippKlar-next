@@ -5,11 +5,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { DayRow } from "./dayRow";
-import { bookings } from "./booking.mock";
 import { Calendar } from "lucide-react";
+import { Booking } from "@/types/type";
 
 type Props = {
-  weekStart: Date; // måndag
+  weekStart: Date;
+  bookings: Booking[];
 };
 
 function addDays(date: Date, days: number) {
@@ -29,7 +30,7 @@ const fmtDayNum = new Intl.DateTimeFormat("sv-SE", { day: "numeric" });
 const fmtMonthShort = new Intl.DateTimeFormat("sv-SE", { month: "short" });
 const fmtWeekdayShort = new Intl.DateTimeFormat("sv-SE", { weekday: "long" });
 
-export function BookingList({ weekStart }: Props) {
+export function BookingList({ weekStart, bookings }: Props) {
   const days = Array.from({ length: 7 }, (_, i) => {
     const date = addDays(weekStart, i);
     return {

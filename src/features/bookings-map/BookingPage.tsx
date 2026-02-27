@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { BookingList } from "./BookingList";
 import { useState } from "react";
+import { bookings } from "./booking.mock";
+import { toISODateKey } from "@/lib/date";
 
 function startOfWeekMonday(date: Date) {
   const d = new Date(date);
@@ -32,6 +34,14 @@ export default function BookingsPage() {
     day: "numeric",
     month: "short",
   });
+  const weekStartKey = toISODateKey(weekStart);
+  const weekEndKey = toISODateKey(weekEnd);
+
+  const bookingsForWeek = bookings.filter(
+    (b) => b.date >= weekStartKey && b.date <= weekEndKey,
+  );
+
+  const bookedCount = bookingsForWeek.length;
   const rangeText = `${fmt.format(weekStart)} – ${fmt.format(weekEnd)}`;
   const todayWeekStart = startOfWeekMonday(new Date());
   const isCurrentWeek = weekStart.getTime() === todayWeekStart.getTime();
@@ -51,7 +61,8 @@ export default function BookingsPage() {
   return (
     <PageContainer className="space-y-6">
       <PageHeader title="Bokningar" description="Veckoöversikt" showBackButton>
-        <Button>Ny bokning</Button>
+        {/* <Button>Ny bokning</Button> */}
+        {/* TODO: Koppla dialog + skapa booking */}
       </PageHeader>
 
       {/* Week navigation row (statisk) */}
@@ -109,11 +120,11 @@ export default function BookingsPage() {
           <span className="text-xs sm:text-sm font-medium">{rangeText}</span>
           {isCurrentWeek && <Badge className="text-xs">Denna vecka</Badge>}
           <Badge variant="secondary" className="text-xs">
-            0 bokade
+            {bookedCount} bokade
           </Badge>
         </div>
       </div>
-      <BookingList weekStart={weekStart} />
+      <BookingList weekStart={weekStart} bookings={bookingsForWeek} />
     </PageContainer>
   );
 }

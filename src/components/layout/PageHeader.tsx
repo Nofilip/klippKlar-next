@@ -46,7 +46,7 @@ export function PageHeader({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="shrink-0 -ml-2 text-muted-foreground hover:text-foreground"
+                  className="shrink-0 -ml-2 text-muted-foreground cursor-pointer transition hover:bg-orange-500/10"
                   aria-label="Tillbaka"
                 >
                   <ArrowLeft className="w-5 h-5" />
