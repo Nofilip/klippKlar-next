@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { sv } from "date-fns/locale";
-import { Calendar, Scissors, Users, Clock, ArrowRight, User } from "lucide-react";
+import { Calendar, Scissors, Clock, ArrowRight, User } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -22,13 +22,22 @@ type Booking = {
 const mockBookings: Booking[] = [];
 
 const quickLinks = [
-  { name: "Bokningar", href: "/bookings", icon: Calendar, color: "bg-accent" },
-  { name: "Tjänster", href: "/tjanster", icon: Scissors, color: "bg-secondary" },
-  { name: "Frisörer", href: "/staff", icon: Users, color: "bg-accent" },
-  { name: "Arbetstider", href: "/working-hours", icon: Clock, color: "bg-secondary" },
+  { name: "Bokningar", href: "/bokningar", icon: Calendar, color: "bg-accent" },
+  {
+    name: "Tjänster",
+    href: "/tjanster",
+    icon: Scissors,
+    color: "bg-secondary",
+  },
+  {
+    name: "Öppettider",
+    href: "/working-hours",
+    icon: Clock,
+    color: "bg-secondary",
+  },
 ];
 
-export default function DashboardPage() {
+export default function Page() {
   const todayLabel = format(new Date(), "EEEE d MMMM yyyy", { locale: sv });
 
   const todaysBookings = mockBookings.filter((b) => b.status === "booked");
@@ -43,7 +52,9 @@ export default function DashboardPage() {
           <Link key={link.name} href={link.href}>
             <Card className="hover:shadow-card transition-shadow cursor-pointer group">
               <CardContent className="flex items-center gap-4 p-4">
-                <div className={`w-12 h-12 rounded-lg ${link.color} flex items-center justify-center`}>
+                <div
+                  className={`w-12 h-12 rounded-lg ${link.color} flex items-center justify-center`}
+                >
                   <link.icon className="w-6 h-6 text-accent-foreground" />
                 </div>
                 <div className="flex-1">
@@ -58,12 +69,12 @@ export default function DashboardPage() {
         ))}
       </div>
 
-
-
       {/* Today's bookings */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg font-display">Dagens bokningar</CardTitle>
+          <CardTitle className="text-lg font-display">
+            Dagens bokningar
+          </CardTitle>
 
           <Link href="/bookings">
             <Button variant="ghost" size="sm">
@@ -100,14 +111,18 @@ export default function DashboardPage() {
                     <p className="font-medium text-foreground text-sm truncate">
                       {booking.customer_name}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">{booking.service_name}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {booking.service_name}
+                    </p>
                   </div>
 
                   <div className="text-right">
                     <p className="text-sm font-medium text-foreground">
                       {format(new Date(booking.start_dt), "HH:mm")}
                     </p>
-                    <p className="text-xs text-muted-foreground">{booking.staff_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {booking.staff_name}
+                    </p>
                   </div>
                 </div>
               ))}

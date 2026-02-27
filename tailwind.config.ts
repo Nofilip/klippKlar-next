@@ -2,6 +2,12 @@
 module.exports = {
   darkMode: ["class", ".dark"],
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  // JIT sometimes drops arbitrary data-variant combinations, so explicitly
+  // safelist the classes we rely on for the accordion animation.
+  safelist: [
+    'data-[state=open]:animate-accordion-down',
+    'data-[state=closed]:animate-accordion-up',
+  ],
   theme: {
     container: {
       center: true,
@@ -96,9 +102,10 @@ module.exports = {
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "accordion-down": "accordion-down 300ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "accordion-up": "accordion-up 300ms cubic-bezier(0.16, 1, 0.3, 1)",
       },
+
     },
   },
   // eslint-disable-next-line @typescript-eslint/no-require-imports

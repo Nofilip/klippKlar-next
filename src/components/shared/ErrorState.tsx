@@ -1,3 +1,4 @@
+"use client";
 import { useState } from 'react';
 import { AlertCircle, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button'; 

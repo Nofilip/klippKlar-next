@@ -7,9 +7,7 @@ import {
   LayoutDashboard,
   Calendar,
   Scissors,
-  Users,
   Clock,
-  Ban,
   Shield,
   PhoneCall,
   Menu,
@@ -24,9 +22,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Bokningar", href: "/bookings", icon: Calendar },
   { name: "Tjänster", href: "/tjanster", icon: Scissors },
-  { name: "Personal", href: "/staff", icon: Users },
-  { name: "Arbetstider", href: "/working-hours", icon: Clock },
-  { name: "Frånvaro", href: "/blocks", icon: Ban },
+  { name: "Öppettider", href: "/working-hours", icon: Clock },
 ];
 
 const ownerNavigation = [
@@ -63,7 +59,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const allNavigation = isOwner ? [...navigation, ...ownerNavigation] : navigation;
+  const allNavigation = isOwner
+    ? [...navigation, ...ownerNavigation]
+    : navigation;
 
   const handleLogout = async () => {
     await logout();
@@ -81,7 +79,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           {/* Logo */}
           <div className="flex items-center h-16 px-6 border-b border-border">
-            <h1 className="text-xl font-semibold text-gradient">Salongsadmin</h1>
+            <h1 className="text-xl font-semibold text-gradient">
+              Salongsadmin
+            </h1>
           </div>
 
           {/* Navigation */}
@@ -96,7 +96,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
                   )}
                 >
                   <item.icon className="w-5 h-5" />
@@ -137,7 +137,9 @@ export function AppLayout({ children }: AppLayoutProps) {
         <div className="brand-bar" />
         <div className="glass border-b border-border">
           <div className="flex items-center justify-between h-14 px-4">
-            <h1 className="text-lg font-semibold text-gradient">Salongsadmin</h1>
+            <h1 className="text-lg font-semibold text-gradient">
+              Salongsadmin
+            </h1>
 
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
@@ -170,7 +172,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                             "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all touch-target",
                             isActive
                               ? "bg-primary text-primary-foreground shadow-sm"
-                              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                              : "text-muted-foreground hover:bg-accent hover:text-foreground",
                           )}
                         >
                           <item.icon className="w-5 h-5" />
@@ -190,7 +192,11 @@ export function AppLayout({ children }: AppLayoutProps) {
                       </p>
                     </div>
 
-                    <Button variant="outline" className="w-full" onClick={handleLogout}>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleLogout}
+                    >
                       <LogOut className="w-4 h-4 mr-2" />
                       Logga ut
                     </Button>
