@@ -24,7 +24,7 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   service: ServiceDraft | null;
-  onSave: (data: ServiceInput) => void;
+  onSave: (data: ServiceInput) => Promise<void>;
 };
 
 export default function ServiceFormDialog({
@@ -42,15 +42,13 @@ export default function ServiceFormDialog({
 
   const canSave = namePublic.trim().length > 0;
 
-  function handleSave() {
+  async function handleSave() {
     const duration = Number(durationMin);
-    onSave({
+    await onSave({
       name_public: namePublic.trim(),
       duration_min: duration,
       is_active: isActive,
     });
-
-    onOpenChange(false);
   }
 
   return (

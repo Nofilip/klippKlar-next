@@ -7,9 +7,8 @@ import { LoadingState } from "@/components/shared/LoadingState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { EmptyState } from "@/components/shared/EmptyState";
 import ServicesList from "./ServicesList";
-import { initialServices } from "./services.mock";
-import { ServiceDraft, ServiceInput } from "@/types/type";
-import { useState } from "react";
+import { ServiceDraft, ServiceInput, ServiceRow } from "@/types/type";
+import { useState, useEffect } from "react";
 import ServiceFormDialog from "./ServiceFormDialog";
 
 type ViewState = "loading" | "error" | "empty" | "list";
@@ -18,16 +17,39 @@ export default function ServicePage() {
   const [selectedService, setSelectedService] = useState<ServiceDraft | null>(
     null,
   );
-  const [services, setServices] = useState<ServiceDraft[]>(initialServices);
+  const [services, setServices] = useState<ServiceDraft[]>([]);
   const [isEditOpen, setisEditOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/treatments");
+        const data = await res.json();
+        const rows = data.services;
+        const mapped = rows.map((row: ServiceRow) => ({
+          id: row.id,
+          name_public: row.name,
+          duration_min: row.duration_min,
+          is_active: Boolean(row.is_active),
+        }));
+        setServices(mapped);
+        setError(null);
+      } catch {
+        setError("Hämntning misslyckades");
+        setServices([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   const handleEditOpenChange = (open: boolean) => {
     setisEditOpen(open);
     if (!open) setSelectedService(null);
   };
-
-  const isLoading = false;
-  const error: string | null = null;
 
   const handleEdit = (service: ServiceDraft) => {
     setSelectedService(service);
@@ -35,11 +57,21 @@ export default function ServicePage() {
     console.log("Parent: handleEdit körs", service.id);
   };
 
-  function handleDelete(service: ServiceDraft) {
+  async function handleDelete(service: ServiceDraft) {
     const ok = confirm(`Ta bort "${service.name_public}"?`);
     if (!ok) return;
 
+    const res = await fetch(`/api/treatments/${service.id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      alert("Kunde inte ta bort: " + (await res.text()));
+      return;
+    }
+
     setServices((prev) => prev.filter((s) => s.id !== service.id));
+
     if (selectedService?.id === service.id) {
       setisEditOpen(false);
       setSelectedService(null);
@@ -52,18 +84,58 @@ export default function ServicePage() {
     setisEditOpen(true);
   }
 
-  function handleOnSave(data: ServiceInput) {
+  async function handleOnSave(data: ServiceInput) {
     if (selectedService) {
+      const res = await fetch(`/api/treatments/${selectedService.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        alert("Kunde inte spara ändringar: " + (await res.text()));
+        return;
+      }
+
+      const json = await res.json();
+      const row = json.service as ServiceRow;
+
+      const updated: ServiceDraft = {
+        id: row.id,
+        name_public: row.name,
+        duration_min: row.duration_min,
+        is_active: Boolean(row.is_active),
+      };
+
       setServices((prev) =>
-        prev.map((s) => (s.id === selectedService.id ? { ...s, ...data } : s)),
+        prev.map((s) => (s.id === updated.id ? updated : s)),
       );
     } else {
-      const newService: ServiceDraft = {
-        id: Date.now(),
-        ...data,
+      // Spara i DB
+      const res = await fetch("/api/treatments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        alert("Kunde inte skapa tjänst: " + (await res.text()));
+        return;
+      }
+
+      const json = await res.json();
+      const row = json.service as ServiceRow; // {id,name,duration_min,is_active}
+
+      const created: ServiceDraft = {
+        id: row.id,
+        name_public: row.name,
+        duration_min: row.duration_min,
+        is_active: Boolean(row.is_active),
       };
-      setServices((prev) => [...prev, newService]);
+
+      setServices((prev) => [...prev, created]);
     }
+
     setisEditOpen(false);
     setSelectedService(null);
   }

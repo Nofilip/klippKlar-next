@@ -24,7 +24,36 @@ export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export type DayHours = {
   day: DayOfWeek;
+  isOpen: boolean;
   start: string;
   end: string;
-  isOpen: boolean;
+};
+
+export type OpeningHoursRow = {
+  day_of_week: number;
+  is_open: number; // 0/1
+  start_time: string | null;
+  end_time: string | null;
+};
+
+export type WorkingHoursResponse = {
+  hours: OpeningHoursRow[];
+};
+
+export type ServiceRow = {
+  id: number;
+  name: string;
+  duration_min: number;
+  is_active: number; // SQLite brukar ge 0/1
+};
+
+export type AppointmentApiRow = {
+  id: number;
+  date: string;
+  time: string;
+  service_id: number;
+  service_name: string;
+  duration_min: number;
+  status: string;
+  created_at: string;
 };

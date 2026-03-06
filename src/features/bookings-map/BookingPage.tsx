@@ -6,15 +6,25 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { BookingList } from "./BookingList";
-import { useState } from "react";
-import { bookings } from "./booking.mock";
+import { useState, useEffect } from "react";
 import { toISODateKey } from "@/lib/date";
+import type {
+  AppointmentApiRow,
+  OpeningHoursRow,
+  WorkingHoursResponse,
+} from "@/types/type";
+
+type AppointmentsWeekResponse = {
+  appointments: AppointmentApiRow[];
+  start: string;
+  end: string;
+};
 
 function startOfWeekMonday(date: Date) {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   const day = d.getDay(); // 0=Sun, 1=Mon, ...
-  const diff = day === 0 ? -6 : 1 - day; // flytta till måndag
+  const diff = day === 0 ? -6 : 1 - day;
   d.setDate(d.getDate() + diff);
   return d;
 }
@@ -29,19 +39,55 @@ export default function BookingsPage() {
   const [weekStart, setWeekStart] = useState(() =>
     startOfWeekMonday(new Date()),
   );
+
+  const [appointments, setAppointments] = useState<AppointmentApiRow[]>([]);
+  const [openingHours, setOpeningHours] = useState<OpeningHoursRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const weekEnd = addDays(weekStart, 6);
+  const weekStartKey = toISODateKey(weekStart);
+
   const fmt = new Intl.DateTimeFormat("sv-SE", {
     day: "numeric",
     month: "short",
   });
-  const weekStartKey = toISODateKey(weekStart);
-  const weekEndKey = toISODateKey(weekEnd);
 
-  const bookingsForWeek = bookings.filter(
-    (b) => b.date >= weekStartKey && b.date <= weekEndKey,
-  );
+  // Load appointments for week
+  useEffect(() => {
+    async function load() {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-  const bookedCount = bookingsForWeek.length;
+        const res = await fetch(`/api/appointments-week?start=${weekStartKey}`);
+        if (!res.ok) throw new Error(await res.text());
+
+        const data: AppointmentsWeekResponse = await res.json();
+        setAppointments(data.appointments);
+      } catch {
+        setError("Kunde inte hämta bokningar.");
+        setAppointments([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    load();
+  }, [weekStartKey]);
+
+  // Load opening hours once
+  useEffect(() => {
+    async function loadOpeningHours() {
+      const res = await fetch("/api/working-hours");
+      if (!res.ok) return;
+      const data: WorkingHoursResponse = await res.json();
+      setOpeningHours(data.hours);
+    }
+    loadOpeningHours();
+  }, []);
+
+  const bookedCount = appointments.length;
   const rangeText = `${fmt.format(weekStart)} – ${fmt.format(weekEnd)}`;
   const todayWeekStart = startOfWeekMonday(new Date());
   const isCurrentWeek = weekStart.getTime() === todayWeekStart.getTime();
@@ -60,71 +106,72 @@ export default function BookingsPage() {
 
   return (
     <PageContainer className="space-y-6">
-      <PageHeader title="Bokningar" description="Veckoöversikt" showBackButton>
-        {/* <Button>Ny bokning</Button> */}
-        {/* TODO: Koppla dialog + skapa booking */}
-      </PageHeader>
+      <PageHeader
+        title="Bokningar"
+        description="Veckoöversikt"
+        showBackButton
+      />
 
-      {/* Week navigation row (statisk) */}
-      <div
-        className={[
-          "flex items-center justify-between gap-3 rounded-xl border bg-card p-4 transition",
-          isCurrentWeek ? "ring-1 ring-orange-500/30 border-orange-500/30" : "",
-        ].join(" ")}
-      >
+      {/* Row 1: controls (mobile centered) */}
+      <div className="grid grid-cols-3 items-center">
+        {/* Left: arrows */}
         <div className="flex items-center gap-2">
           <Button
-            className="cursor-pointer transition hover:bg-orange-500/10"
             variant="outline"
             size="icon"
             aria-label="Föregående vecka"
             onClick={prevWeek}
+            className="hover:bg-orange-500/10"
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
 
           <Button
-            className="cursor-pointer transition hover:bg-orange-500/10"
             variant="outline"
             size="icon"
             aria-label="Nästa vecka"
             onClick={nextWeek}
+            className="hover:bg-orange-500/10"
           >
             <ChevronRight className="w-4 h-4" />
           </Button>
+        </div>
 
+        {/* Middle: today */}
+        <div className="justify-self-center">
           <Button
             type="button"
             onClick={goToday}
             aria-pressed={isCurrentWeek}
             variant="ghost"
             className={[
-              "cursor-pointer transition",
-              // border-bas
               "border border-orange-500/20",
-              // färg + hover
-              "text-orange-500/70 hover:text-orange-500 hover:bg-orange-500/10 hover:border-orange-500/50",
-              // aktivt läge
-              isCurrentWeek
-                ? "text-orange-500 bg-orange-500/10 border-orange-500/60"
-                : "",
-              // fokus
-              "focus-visible:ring-2 focus-visible:ring-orange-500/40",
+              "text-orange-500/80 hover:text-orange-500 hover:bg-orange-500/10 hover:border-orange-500/50",
+              isCurrentWeek ? "bg-orange-500/10 border-orange-500/60" : "",
             ].join(" ")}
           >
             Idag
           </Button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs sm:text-sm font-medium">{rangeText}</span>
-          {isCurrentWeek && <Badge className="text-xs">Denna vecka</Badge>}
+        {/* Right: booked */}
+        <div className="justify-self-end">
           <Badge variant="secondary" className="text-xs">
-            {bookedCount} bokade
+            {rangeText}
           </Badge>
         </div>
       </div>
-      <BookingList weekStart={weekStart} bookings={bookingsForWeek} />
+
+      {isLoading && <p className="text-sm text-muted-foreground">Laddar...</p>}
+      {error && <p className="text-sm text-red-500">{error}</p>}
+
+      {!isLoading && !error && (
+        <BookingList
+          weekStart={weekStart}
+          appointments={appointments}
+          openingHours={openingHours}
+        />
+      )}
     </PageContainer>
   );
 }
