@@ -7,7 +7,6 @@ type Row = {
   date: string;
   time: string;
   status: string;
-  customer_name: string | null;
   service_id: number;
   service_name: string;
   duration_min: number | null;

@@ -7,7 +7,6 @@ type Row = {
   date: string;
   time: string;
   status: string;
-  customer_name: string | null;
   service_id: number;
   service_name: string;
   duration_min: number | null;
@@ -31,7 +30,6 @@ export async function GET() {
         a.date,
         a.time,
         a.status,
-        a.customer_name,
         a.service_id,
         s.name AS service_name,
         s.duration_min

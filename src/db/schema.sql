@@ -54,3 +54,13 @@ BEGIN
       THEN RAISE(ABORT, 'Cannot move appointment to a closed day')
     END;
 END;
+
+CREATE TABLE IF NOT EXISTS salons (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
+  public_phone TEXT,
+  elks_number TEXT UNIQUE,
+  forward_to_number TEXT,
+  phone_enabled INTEGER NOT NULL DEFAULT 0
+);

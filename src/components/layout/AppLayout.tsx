@@ -20,8 +20,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Bokningar", href: "/bookings", icon: Calendar },
-  { name: "Tjänster", href: "/tjanster", icon: Scissors },
+  { name: "Bokningar", href: "/appointments", icon: Calendar },
+  { name: "Tjänster", href: "/treatments", icon: Scissors },
   { name: "Öppettider", href: "/working-hours", icon: Clock },
 ];
 
