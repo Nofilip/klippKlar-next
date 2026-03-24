@@ -30,8 +30,9 @@ export type DayHours = {
 };
 
 export type OpeningHoursRow = {
+  salon_id: number;
   day_of_week: number;
-  is_open: number; // 0/1
+  is_open: number;
   start_time: string | null;
   end_time: string | null;
 };
@@ -56,4 +57,22 @@ export type AppointmentApiRow = {
   duration_min: number;
   status: string;
   created_at: string;
+};
+
+export type SalonRow = {
+  id: number;
+  name: string;
+  slug: string;
+  public_phone: string | null;
+  elks_number: string | null;
+  forward_to_number: string | null;
+  phone_enabled: number;
+  calendar_id: string | null;
+};
+
+export type ServiceChoice = {
+  digit: string;
+  serviceId: number;
+  name: string;
+  durationMin: number;
 };

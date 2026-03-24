@@ -62,5 +62,6 @@ CREATE TABLE IF NOT EXISTS salons (
   public_phone TEXT,
   elks_number TEXT UNIQUE,
   forward_to_number TEXT,
-  phone_enabled INTEGER NOT NULL DEFAULT 0
+  phone_enabled INTEGER NOT NULL DEFAULT 0,
+  calendar_id TEXT
 );

@@ -12,12 +12,24 @@ import type {
   AppointmentApiRow,
   OpeningHoursRow,
   WorkingHoursResponse,
+  ServiceRow,
 } from "@/types/type";
 
 type AppointmentsWeekResponse = {
   appointments: AppointmentApiRow[];
   start: string;
   end: string;
+};
+
+type TreatmentsResponse = {
+  services: ServiceRow[];
+};
+
+type AvailableSlotsResponse = {
+  date: string;
+  serviceId: number;
+  durationMin: number;
+  slots: string[];
 };
 
 function startOfWeekMonday(date: Date) {
@@ -44,16 +56,52 @@ export default function BookingsPage() {
   const [openingHours, setOpeningHours] = useState<OpeningHoursRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [services, setServices] = useState<ServiceRow[]>([]);
+  const [servicesError, setServicesError] = useState<string | null>(null);
+
+  // Temporary available-slots test state
+  const [selectedServiceId, setSelectedServiceId] = useState("1");
+  const [selectedDate, setSelectedDate] = useState(toISODateKey(new Date()));
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState<string | null>(null);
 
   const weekEnd = addDays(weekStart, 6);
   const weekStartKey = toISODateKey(weekStart);
+  const salonId = 1;
 
   const fmt = new Intl.DateTimeFormat("sv-SE", {
     day: "numeric",
     month: "short",
   });
 
-  // Load appointments for week
+  useEffect(() => {
+    async function loadServices() {
+      try {
+        setServicesError(null);
+
+        const res = await fetch(`/api/treatments?salonId=${salonId}`);
+        if (!res.ok) {
+          throw new Error(await res.text());
+        }
+
+        const data: TreatmentsResponse = await res.json();
+        const rows = data.services;
+
+        setServices(rows);
+
+        if (rows.length > 0) {
+          setSelectedServiceId(String(rows[0].id));
+        }
+      } catch {
+        setServicesError("Kunde inte hämta tjänster.");
+        setServices([]);
+      }
+    }
+
+    loadServices();
+  }, []);
+
   useEffect(() => {
     async function load() {
       try {
@@ -76,18 +124,51 @@ export default function BookingsPage() {
     load();
   }, [weekStartKey]);
 
-  // Load opening hours once
   useEffect(() => {
     async function loadOpeningHours() {
-      const res = await fetch("/api/working-hours");
+      const res = await fetch(`/api/working-hours?salonId=${salonId}`);
       if (!res.ok) return;
       const data: WorkingHoursResponse = await res.json();
       setOpeningHours(data.hours);
     }
+
     loadOpeningHours();
   }, []);
 
-  const bookedCount = appointments.length;
+  useEffect(() => {
+    async function autoLoadAvailableSlots() {
+      const serviceId = Number(selectedServiceId);
+
+      if (!serviceId || !selectedDate) {
+        setAvailableSlots([]);
+        return;
+      }
+
+      try {
+        setSlotsLoading(true);
+        setSlotsError(null);
+        setAvailableSlots([]);
+
+        const res = await fetch(
+          `/api/available-slots?date=${selectedDate}&serviceId=${serviceId}&salonId=${salonId}`,
+        );
+        if (!res.ok) {
+          throw new Error(await res.text());
+        }
+
+        const data: AvailableSlotsResponse = await res.json();
+        setAvailableSlots(data.slots);
+      } catch {
+        setSlotsError("Kunde inte hämta lediga tider.");
+        setAvailableSlots([]);
+      } finally {
+        setSlotsLoading(false);
+      }
+    }
+
+    autoLoadAvailableSlots();
+  }, [selectedServiceId, selectedDate]);
+
   const rangeText = `${fmt.format(weekStart)} – ${fmt.format(weekEnd)}`;
   const todayWeekStart = startOfWeekMonday(new Date());
   const isCurrentWeek = weekStart.getTime() === todayWeekStart.getTime();
@@ -112,9 +193,7 @@ export default function BookingsPage() {
         showBackButton
       />
 
-      {/* Row 1: controls (mobile centered) */}
       <div className="grid grid-cols-3 items-center">
-        {/* Left: arrows */}
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -137,7 +216,6 @@ export default function BookingsPage() {
           </Button>
         </div>
 
-        {/* Middle: today */}
         <div className="justify-self-center">
           <Button
             type="button"
@@ -154,7 +232,6 @@ export default function BookingsPage() {
           </Button>
         </div>
 
-        {/* Right: booked */}
         <div className="justify-self-end">
           <Badge variant="secondary" className="text-xs">
             {rangeText}
@@ -172,6 +249,83 @@ export default function BookingsPage() {
           openingHours={openingHours}
         />
       )}
+
+      {/* Temporary test panel for available slots */}
+      <section className="rounded-xl border bg-card p-4 space-y-4">
+        <div>
+          <div>
+            <h2 className="text-lg font-semibold">Tillgängliga tider</h2>
+            <p className="text-sm text-muted-foreground">
+              Välj tjänst och datum för att se lediga tider.
+            </p>
+            {servicesError && (
+              <p className="text-sm text-red-500">{servicesError}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <label htmlFor="serviceId" className="text-sm font-medium">
+              Tjänst
+            </label>
+            <select
+              id="serviceId"
+              value={selectedServiceId}
+              onChange={(e) => setSelectedServiceId(e.target.value)}
+              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+            >
+              {services.length === 0 && (
+                <option value="">Inga tjänster hittades</option>
+              )}
+
+              {services.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.name} ({service.duration_min} min)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="selectedDate" className="text-sm font-medium">
+              Datum
+            </label>
+            <input
+              id="selectedDate"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+
+        {slotsLoading && (
+          <p className="text-sm text-muted-foreground">Hämtar tider...</p>
+        )}
+
+        {slotsError && <p className="text-sm text-red-500">{slotsError}</p>}
+
+        {!slotsLoading && !slotsError && availableSlots.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {availableSlots.map((slot) => (
+              <div
+                key={slot}
+                className="rounded-lg border px-3 py-2 text-sm font-medium bg-background"
+              >
+                {slot}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!slotsLoading && !slotsError && availableSlots.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            Det finns inga lediga tider för valt datum.
+          </p>
+        )}
+      </section>
     </PageContainer>
   );
 }

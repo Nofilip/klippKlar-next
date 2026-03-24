@@ -21,11 +21,12 @@ export default function ServicePage() {
   const [isEditOpen, setisEditOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const salonId = 1;
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/treatments");
+        const res = await fetch(`/api/treatments?salonId=${salonId}`);
         const data = await res.json();
         const rows = data.services;
         const mapped = rows.map((row: ServiceRow) => ({
@@ -61,9 +62,12 @@ export default function ServicePage() {
     const ok = confirm(`Ta bort "${service.name_public}"?`);
     if (!ok) return;
 
-    const res = await fetch(`/api/treatments/${service.id}`, {
-      method: "DELETE",
-    });
+    const res = await fetch(
+      `/api/treatments/${service.id}?salonId=${salonId}`,
+      {
+        method: "DELETE",
+      },
+    );
 
     if (!res.ok) {
       alert("Kunde inte ta bort: " + (await res.text()));
@@ -86,11 +90,14 @@ export default function ServicePage() {
 
   async function handleOnSave(data: ServiceInput) {
     if (selectedService) {
-      const res = await fetch(`/api/treatments/${selectedService.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `/api/treatments/${selectedService.id}?salonId=${salonId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        },
+      );
 
       if (!res.ok) {
         alert("Kunde inte spara ändringar: " + (await res.text()));
@@ -112,7 +119,7 @@ export default function ServicePage() {
       );
     } else {
       // Spara i DB
-      const res = await fetch("/api/treatments", {
+      const res = await fetch(`/api/treatments?salonId=${salonId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
