@@ -11,6 +11,20 @@ CREATE TABLE IF NOT EXISTS salons (
   calendar_id TEXT
 );
 
+INSERT OR IGNORE INTO salons (
+  id,
+  name,
+  slug,
+  public_phone,
+  phone_enabled
+) VALUES (
+  1,
+  'Demo Salong',
+  'demo-salong',
+  NULL,
+  0
+);
+
 CREATE TABLE IF NOT EXISTS services (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   salon_id INTEGER NOT NULL DEFAULT 1,
@@ -29,6 +43,21 @@ CREATE TABLE IF NOT EXISTS opening_hours (
   PRIMARY KEY (salon_id, day_of_week),
   FOREIGN KEY(salon_id) REFERENCES salons(id)
 );
+
+INSERT OR IGNORE INTO opening_hours (
+  salon_id,
+  day_of_week,
+  is_open,
+  start_time,
+  end_time
+) VALUES
+  (1, 0, 0, NULL, NULL),
+  (1, 1, 0, NULL, NULL),
+  (1, 2, 0, NULL, NULL),
+  (1, 3, 0, NULL, NULL),
+  (1, 4, 0, NULL, NULL),
+  (1, 5, 0, NULL, NULL),
+  (1, 6, 0, NULL, NULL);
 
 CREATE TABLE IF NOT EXISTS appointments (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
