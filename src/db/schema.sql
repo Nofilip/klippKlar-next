@@ -54,8 +54,8 @@ BEGIN
       WHEN (
         SELECT is_open
         FROM opening_hours
-WHERE salon_id = NEW.salon_id
-AND day_of_week = ((CAST(strftime('%w', NEW.date) AS INTEGER) + 6) % 7)
+        WHERE salon_id = NEW.salon_id
+        AND day_of_week = ((CAST(strftime('%w', NEW.date) AS INTEGER) + 6) % 7)
       ) = 0
       THEN RAISE(ABORT, 'Cannot create appointment on a closed day')
     END;
