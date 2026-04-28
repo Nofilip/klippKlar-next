@@ -184,7 +184,7 @@ export default function ServicePage() {
           title="Inga tjänster ännu"
           description="Lägg till din första tjänst för att kunder ska kunna boka."
           action={
-            <Button>
+            <Button onClick={openNewForm}>
               <Plus className="w-4 h-4 mr-2" />
               Lägg till tjänst
             </Button>
