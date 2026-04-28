@@ -20,7 +20,8 @@ export type Booking = {
   customer: string;
   service: string;
 };
-export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export type DayOfWeek = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export type DayHours = {
   day: DayOfWeek;

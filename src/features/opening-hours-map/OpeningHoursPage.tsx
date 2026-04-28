@@ -1,4 +1,5 @@
 "use client";
+
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -18,13 +19,13 @@ const MIN_TIME = 7 * 60; // 07:00
 const MAX_TIME = 22 * 60; // 22:00
 
 const DAYS = [
-  { value: 0, label: "Måndag", short: "Mån" },
-  { value: 1, label: "Tisdag", short: "Tis" },
-  { value: 2, label: "Onsdag", short: "Ons" },
-  { value: 3, label: "Torsdag", short: "Tor" },
-  { value: 4, label: "Fredag", short: "Fre" },
-  { value: 5, label: "Lördag", short: "Lör" },
-  { value: 6, label: "Söndag", short: "Sön" },
+  { value: 1, label: "Måndag", short: "Mån" },
+  { value: 2, label: "Tisdag", short: "Tis" },
+  { value: 3, label: "Onsdag", short: "Ons" },
+  { value: 4, label: "Torsdag", short: "Tor" },
+  { value: 5, label: "Fredag", short: "Fre" },
+  { value: 6, label: "Lördag", short: "Lör" },
+  { value: 7, label: "Söndag", short: "Sön" },
 ] as const;
 
 function timeToMinutes(t: string) {
@@ -37,7 +38,14 @@ export default function OpeningHoursPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await fetch("/api/working-hours");
+      const res = await fetch("/api/working-hours?salonId=1");
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Kunde inte hämta öppettider:", errorText);
+        return;
+      }
+
       const data: WorkingHoursResponse = await res.json();
       const mapped = data.hours.map((row: OpeningHoursRow) => ({
         day: row.day_of_week as DayOfWeek,
@@ -47,11 +55,12 @@ export default function OpeningHoursPage() {
       }));
       setHours(mapped);
     }
+
     load();
   }, []);
 
   async function onSave() {
-    const res = await fetch("/api/working-hours", {
+    const res = await fetch("/api/working-hours?salonId=1", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ hours }),
@@ -67,9 +76,11 @@ export default function OpeningHoursPage() {
 
   const hasErrors = hours.some((h) => {
     if (!h.isOpen) return false;
-    const s = timeToMinutes(h.start);
-    const e = timeToMinutes(h.end);
-    return e <= s || s < MIN_TIME || e > MAX_TIME;
+
+    const startMin = timeToMinutes(h.start);
+    const endMin = timeToMinutes(h.end);
+
+    return endMin <= startMin || startMin < MIN_TIME || endMin > MAX_TIME;
   });
 
   function updateHour(day: DayHours["day"], patch: Partial<DayHours>) {
@@ -77,6 +88,7 @@ export default function OpeningHoursPage() {
       prev.map((h) => (h.day === day ? { ...h, ...patch } : h)),
     );
   }
+
   return (
     <PageContainer className="space-y-6">
       <PageHeader
@@ -93,10 +105,10 @@ export default function OpeningHoursPage() {
           Spara
         </Button>
       </PageHeader>
+
       <div className="space-y-3">
         {hours.map((h) => {
-          const day = DAYS[h.day]; // om h.day är 0..6
-          <div className="w-12 shrink-0 font-medium">{day?.short ?? "?"}</div>;
+          const day = DAYS.find((d) => d.value === h.day);
           const startMin = timeToMinutes(h.start);
           const endMin = timeToMinutes(h.end);
 
@@ -116,10 +128,10 @@ export default function OpeningHoursPage() {
             >
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  {/* Day label */}
-                  <div className="w-12 shrink-0 font-medium">{day!.short}</div>
+                  <div className="w-12 shrink-0 font-medium">
+                    {day?.short ?? "?"}
+                  </div>
 
-                  {/* Switch */}
                   <Switch
                     checked={h.isOpen}
                     onCheckedChange={(checked) =>
@@ -132,12 +144,10 @@ export default function OpeningHoursPage() {
                     }
                   />
 
-                  {/* Öppet/Stängt (bara desktop) */}
                   <span className="hidden sm:inline text-sm text-muted-foreground w-14">
                     {h.isOpen ? "Öppet" : "Stängt"}
                   </span>
 
-                  {/* Times */}
                   <div className="flex items-center gap-2 flex-1 justify-end">
                     {h.isOpen ? (
                       <>
@@ -165,6 +175,7 @@ export default function OpeningHoursPage() {
                       </span>
                     )}
                   </div>
+
                   {timeError && (
                     <span className="text-xs text-red-500 ml-2 whitespace-nowrap">
                       {orderError

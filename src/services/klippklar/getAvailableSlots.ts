@@ -24,6 +24,7 @@ function getDayOfWeekFromIsoDate(isoDate: string) {
   const [year, month, day] = isoDate.split("-").map(Number);
   const date = new Date(year, month - 1, day);
   const jsDay = date.getDay();
+
   return jsDay === 0 ? 7 : jsDay;
 }
 
@@ -66,7 +67,8 @@ export function getAvailableSlots({
     )
     .get(salonId, dayOfWeek) as OpeningHoursRow | undefined;
 
-  if (!openingHours) {
+    if (!openingHours) {
+    console.log("No opening hours found", { salonId, dayOfWeek, date });
     return { slots: [], durationMin: null };
   }
 
@@ -75,6 +77,7 @@ export function getAvailableSlots({
     !openingHours.start_time ||
     !openingHours.end_time
   ) {
+    console.log("Salon closed or incomplete opening hours", openingHours);
     return { slots: [], durationMin: null };
   }
 

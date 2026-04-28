@@ -29,9 +29,9 @@ function toISODateKey(d: Date) {
 }
 
 // JS getDay(): 0=sön..6=lör  -> DB: 0=mån..6=sön
-function toDbDayIndex(date: Date): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
-  const js = date.getDay();
-  return (js === 0 ? 6 : js - 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6;
+function toDbDayIndex(date: Date) {
+  const jsDay = date.getDay(); // 0=sön, 1=mån, ... 6=lör
+  return jsDay === 0 ? 7 : jsDay;
 }
 
 const fmtDayNum = new Intl.DateTimeFormat("sv-SE", { day: "numeric" });
