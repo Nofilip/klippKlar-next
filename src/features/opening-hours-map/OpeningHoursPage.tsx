@@ -25,7 +25,7 @@ const DAYS = [
   { value: 4, label: "Torsdag", short: "Tor" },
   { value: 5, label: "Fredag", short: "Fre" },
   { value: 6, label: "Lördag", short: "Lör" },
-  { value: 7, label: "Söndag", short: "Sön" },
+  { value: 0, label: "Söndag", short: "Sön" },
 ] as const;
 
 function timeToMinutes(t: string) {

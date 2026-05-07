@@ -91,29 +91,27 @@ export default function TodayBookingsCard() {
     return (
       <div className="space-y-2">
         {visible.map((b) => (
-          <div key={b.id} className="rounded-lg border bg-background p-3">
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <span
-                className={[
-                  "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-                  "border border-orange-500/25 bg-orange-500/10 text-orange-500/90",
-                ].join(" ")}
-                title="Tjänst"
-              >
-                {b.service_name}
-              </span>
+          <div key={b.id} className="rounded-xl border bg-background p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-16 items-center justify-center rounded-lg border border-orange-500/20 bg-orange-500/10 text-sm font-semibold text-orange-600">
+                  {b.time}
+                </div>
 
-              {b.duration_min ? (
-                <span
-                  className={[
-                    "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-                    "border border-orange-500/15 bg-orange-500/5 text-orange-500/80",
-                  ].join(" ")}
-                  title="Längd"
-                >
-                  {b.duration_min} min
-                </span>
-              ) : null}
+                <div>
+                  <p className="font-medium text-foreground">
+                    {b.service_name}
+                  </p>
+
+                  <p className="text-sm text-muted-foreground">
+                    {b.duration_min ? `${b.duration_min} min` : "Okänd längd"}
+                  </p>
+                </div>
+              </div>
+
+              <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-600">
+                {b.status === "booked" ? "Bokad" : b.status}
+              </span>
             </div>
           </div>
         ))}
